@@ -1,0 +1,40 @@
+From 7120fd46814876b8e86646d66b8ede448d009251 Mon Sep 17 00:00:00 2001
+From: Quan Xu <quan.xu@intel.com>
+Date: Sat, 2 Jul 2016 11:38:56 +0800
+Subject: [PATCH 03/36] vtpm: fix stubdom/vtpm/vtpm_pcrs.h
+
+Signed-off-by: Quan Xu <quan.xu@intel.com>
+---
+ stubdom/vtpm/vtpm_pcrs.h | 7 ++-----
+ 1 file changed, 2 insertions(+), 5 deletions(-)
+
+diff --git a/stubdom/vtpm/vtpm_pcrs.h b/stubdom/vtpm/vtpm_pcrs.h
+index 11835f9..7c20a4e 100644
+--- a/stubdom/vtpm/vtpm_pcrs.h
++++ b/stubdom/vtpm/vtpm_pcrs.h
+@@ -12,7 +12,6 @@
+ 
+ #ifndef VTPM_PCRS_H
+ #define VTPM_PCRS_H
+-
+ #include "tpm/tpm_structures.h"
+ 
+ #define VTPM_PCR0 1
+@@ -42,12 +41,10 @@
+ 
+ #define VTPM_PCRALL (1 << TPM_NUM_PCR) - 1
+ #define VTPM_PCRNONE 0
+-
+ #define VTPM_NUMPCRS 24
+ 
+ struct tpmfront_dev;
+ 
+-TPM_RESULT vtpm_initialize_hw_pcrs(struct tpmfront_dev* tpmfront_dev, unsigned long pcrs);
+-
+-
++TPM_RESULT vtpm_initialize_hw_pcrs(struct tpmfront_dev* tpmfront_dev,
++                                   unsigned long pcrs);
+ #endif
+-- 
+1.9.1
+

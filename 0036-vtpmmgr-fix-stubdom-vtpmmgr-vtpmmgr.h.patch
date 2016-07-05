@@ -1,0 +1,70 @@
+From db84b177ae244811e8e6a8a2badf0c3650669766 Mon Sep 17 00:00:00 2001
+From: Quan Xu <quan.xu@intel.com>
+Date: Tue, 5 Jul 2016 16:01:22 +0800
+Subject: [PATCH 36/36] vtpmmgr: fix stubdom/vtpmmgr/vtpmmgr.h
+
+Signed-off-by: Quan Xu <quan.xu@intel.com>
+---
+ stubdom/vtpmmgr/vtpmmgr.h | 23 ++++++++++++-----------
+ 1 file changed, 12 insertions(+), 11 deletions(-)
+
+diff --git a/stubdom/vtpmmgr/vtpmmgr.h b/stubdom/vtpmmgr/vtpmmgr.h
+index 2e6f8de..bc9e22e 100644
+--- a/stubdom/vtpmmgr/vtpmmgr.h
++++ b/stubdom/vtpmmgr/vtpmmgr.h
+@@ -63,7 +63,7 @@ extern struct tpm_hardware_version hardware_version;
+ 
+ struct vtpm_globals {
+    int tpm_fd;
+-   TPM_AUTH_SESSION    oiap;                // OIAP session for storageKey
++   TPM_AUTH_SESSION    oiap; /* OIAP session for storageKey */
+ 
+    TPM_AUTHDATA        owner_auth;
+    TPM_AUTHDATA        srk_auth;
+@@ -83,26 +83,28 @@ struct vtpm_globals {
+ };
+ 
+ struct tpm_opaque {
+-	uuid_t *uuid;
+-	struct mem_group *group;
+-	struct mem_vtpm *vtpm;
++    uuid_t *uuid;
++    struct mem_group *group;
++    struct mem_vtpm *vtpm;
+ 
+-	domid_t domid;
+-	unsigned int handle;
++    domid_t domid;
++    unsigned int handle;
+ 
+-	uint8_t kern_hash[20];
++    uint8_t kern_hash[20];
+ };
+ 
+ // --------------------------- Global Values --------------------------
+-extern struct vtpm_globals vtpm_globals;   // Key info and DMI states
++extern struct vtpm_globals vtpm_globals;   /* Key info and DMI states */
+ 
+ TPM_RESULT vtpmmgr_init(int argc, char** argv);
+ void vtpmmgr_shutdown(void);
+ 
+ TPM_RESULT vtpmmgr_handle_cmd(struct tpm_opaque *opq, tpmcmd_t* tpmcmd);
+ 
+-inline TPM_RESULT vtpmmgr_rand(unsigned char* bytes, size_t num_bytes) {
+-   return ctr_drbg_random(&vtpm_globals.ctr_drbg, bytes, num_bytes) == 0 ? 0 : TPM_FAIL;
++inline TPM_RESULT vtpmmgr_rand(unsigned char* bytes, size_t num_bytes)
++{
++   return ctr_drbg_random(&vtpm_globals.ctr_drbg, bytes, num_bytes) == 0
++          ? 0 : TPM_FAIL;
+ }
+ 
+ /* TPM 2.0 */
+@@ -112,5 +114,4 @@ TPM_RESULT vtpmmgr2_create(void);
+ TPM_RESULT vtpmmgr2_init(int argc, char** argv);
+ int parse_cmdline_hw(int argc, char** argv);
+ int hw_is_tpm2(void);
+-
+ #endif
+-- 
+1.9.1
+

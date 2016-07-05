@@ -1,0 +1,80 @@
+From c1272b0387ae06065f599286bc6c9d141f844ff5 Mon Sep 17 00:00:00 2001
+From: Quan Xu <quan.xu@intel.com>
+Date: Tue, 5 Jul 2016 10:25:01 +0800
+Subject: [PATCH 27/36] vtpmmgr: fix stubdom/vtpmmgr/log.h
+
+Signed-off-by: Quan Xu <quan.xu@intel.com>
+---
+ stubdom/vtpmmgr/log.h | 31 +++++++++++++------------------
+ 1 file changed, 13 insertions(+), 18 deletions(-)
+
+diff --git a/stubdom/vtpmmgr/log.h b/stubdom/vtpmmgr/log.h
+index 455219f..d2d38b3 100644
+--- a/stubdom/vtpmmgr/log.h
++++ b/stubdom/vtpmmgr/log.h
+@@ -37,14 +37,14 @@
+ #ifndef __VTPM_LOG_H__
+ #define __VTPM_LOG_H__
+ 
+-#include <stdint.h>             // for uint32_t
+-#include <stddef.h>             // for pointer NULL
++#include <stdint.h>  /* for uint32_t */
++#include <stddef.h>  /* for pointer NULL */
+ #include <stdio.h>
+ #include "tcg.h"
+ 
+-// =========================== LOGGING ==============================
++/* =========================== LOGGING ============================== */
+ 
+-// the logging module numbers
++/* the logging module numbers */
+ #define VTPM_LOG_TPM         1
+ #define VTPM_LOG_TPM_DEEP    2
+ #define VTPM_LOG_VTPM        3
+@@ -53,12 +53,12 @@
+ 
+ extern char *module_names[];
+ 
+-// Default to standard logging
++/* Default to standard logging */
+ #ifndef LOGGING_MODULES
+ #define LOGGING_MODULES (BITMASK(VTPM_LOG_VTPM)|BITMASK(VTPM_LOG_TPM))
+ #endif
+ 
+-// bit-access macros
++/* bit-access macros */
+ #define BITMASK(idx)      ( 1U << (idx) )
+ #define GETBIT(num,idx)   ( ((num) & BITMASK(idx)) >> idx )
+ #define SETBIT(num,idx)   (num) |= BITMASK(idx)
+@@ -67,21 +67,16 @@ extern char *module_names[];
+ void printk(const char *fmt, ...);
+ 
+ #define vtpmloginfo(module, fmt, args...) \
+-  if (GETBIT (LOGGING_MODULES, module) == 1) {				\
+-    printk("INFO[%s]: " fmt, module_names[module], ##args); \
+-  }
++    if ( GETBIT (LOGGING_MODULES, module) == 1 ) \
++        printk("INFO[%s]: " fmt, module_names[module], ##args); \
+ 
+ #define vtpmloginfomore(module, fmt, args...) \
+-  if (GETBIT (LOGGING_MODULES, module) == 1) {			      \
+-    printk(fmt,##args);				      \
+-  }
++    if ( GETBIT (LOGGING_MODULES, module) == 1 ) \
++        printk(fmt,##args);
+ 
+ #define vtpmlogerror(module, fmt, args...) \
+-  printk("ERROR[%s]: " fmt, module_names[module], ##args);
++    printk("ERROR[%s]: " fmt, module_names[module], ##args);
+ 
+-//typedef UINT32 tpm_size_t;
+-
+-// helper function for the error codes:
++/* helper function for the error codes: */
+ const char* tpm_get_error_name (TPM_RESULT code);
+-
+-#endif // _VTPM_LOG_H_
++#endif /* _VTPM_LOG_H_ */
+-- 
+1.9.1
+

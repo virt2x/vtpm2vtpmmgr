@@ -1,0 +1,48 @@
+From 1a021805abae2f8db51a339fe60bc999e4f2b43d Mon Sep 17 00:00:00 2001
+From: Quan Xu <quan.xu@intel.com>
+Date: Tue, 5 Jul 2016 10:03:37 +0800
+Subject: [PATCH 23/36] vtpmmgr: fix stubdom/vtpmmgr/disk_crypto.h
+
+Signed-off-by: Quan Xu <quan.xu@intel.com>
+---
+ stubdom/vtpmmgr/disk_crypto.h | 23 ++++++++++++++---------
+ 1 file changed, 14 insertions(+), 9 deletions(-)
+
+diff --git a/stubdom/vtpmmgr/disk_crypto.h b/stubdom/vtpmmgr/disk_crypto.h
+index faae9ab..c27ab43 100644
+--- a/stubdom/vtpmmgr/disk_crypto.h
++++ b/stubdom/vtpmmgr/disk_crypto.h
+@@ -2,16 +2,21 @@
+ #define __VTPMMGR_DISK_CRYPTO_H
+ 
+ void do_random(void *buf, size_t size);
+-void aes_encrypt_one(void *target, const void *src, const struct key128 *key);
+-void aes_decrypt_one(void *target, const void *src, const struct key128 *key);
+-
++void aes_encrypt_one(void *target, const void *src,
++                     const struct key128 *key);
++void aes_decrypt_one(void *target, const void *src,
++                     const struct key128 *key);
+ void aes_setup(aes_context *ctx, const struct key128 *key);
+-void aes_encrypt_ctr(void *target, size_t target_size, const void *srcv, size_t src_size, const aes_context *key_e);
+-void aes_decrypt_ctr(void *target, size_t target_size, const void *srcv, size_t src_size, const aes_context *key_e);
+-void aes_cmac(struct mac128 *target, const void *src, size_t size, const aes_context *key);
+-int aes_cmac_verify(const struct mac128 *target, const void *src, size_t size, const aes_context *key);
+-
++void aes_encrypt_ctr(void *target, size_t target_size,
++                     const void *srcv, size_t src_size,
++                     const aes_context *key_e);
++void aes_decrypt_ctr(void *target, size_t target_size,
++                     const void *srcv, size_t src_size,
++                     const aes_context *key_e);
++void aes_cmac(struct mac128 *target, const void *src,
++              size_t size, const aes_context *key);
++int aes_cmac_verify(const struct mac128 *target, const void *src,
++                    size_t size, const aes_context *key);
+ void sha256(struct hash256 *target, const void *src, size_t size);
+ int sha256_verify(const struct hash256 *targ, const void *data, size_t size);
+-
+ #endif
+-- 
+1.9.1
+

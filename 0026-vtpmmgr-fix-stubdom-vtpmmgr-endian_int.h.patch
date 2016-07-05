@@ -1,0 +1,111 @@
+From 4035a9f64318908eeea976a2811383e7347cd921 Mon Sep 17 00:00:00 2001
+From: Quan Xu <quan.xu@intel.com>
+Date: Tue, 5 Jul 2016 10:18:29 +0800
+Subject: [PATCH 26/36] vtpmmgr: fix stubdom/vtpmmgr/endian_int.h
+
+Signed-off-by: Quan Xu <quan.xu@intel.com>
+---
+ stubdom/vtpmmgr/endian_int.h | 46 +++++++++++++++++++++++---------------------
+ 1 file changed, 24 insertions(+), 22 deletions(-)
+
+diff --git a/stubdom/vtpmmgr/endian_int.h b/stubdom/vtpmmgr/endian_int.h
+index 030f87b..e77d8a7 100644
+--- a/stubdom/vtpmmgr/endian_int.h
++++ b/stubdom/vtpmmgr/endian_int.h
+@@ -4,69 +4,71 @@
+ #include <mini-os/byteorder.h>
+ 
+ /* These wrapper structs force the use of endian-to-CPU conversions */
+-
+ typedef struct be_int16 {
+-	uint16_t value;
++    uint16_t value;
+ } be16_t;
+ 
+ typedef struct be_int32 {
+-	uint32_t value;
++    uint32_t value;
+ } be32_t;
+ 
+ typedef struct le_int32 {
+-	uint32_t value;
++    uint32_t value;
+ } le32_t;
+ 
+ typedef struct be_int64 {
+-	uint64_t value;
++    uint64_t value;
+ } be64_t;
+ 
+ static inline uint16_t be16_native(be16_t v)
+ {
+-	return be16_to_cpu(v.value);
++    return be16_to_cpu(v.value);
+ }
+ 
+ static inline uint32_t le32_native(le32_t v)
+ {
+-	return le32_to_cpu(v.value);
++    return le32_to_cpu(v.value);
+ }
+ 
+ static inline uint32_t be32_native(be32_t v)
+ {
+-	return be32_to_cpu(v.value);
++    return be32_to_cpu(v.value);
+ }
+ 
+ static inline uint64_t be64_native(be64_t v)
+ {
+-	return be64_to_cpu(v.value);
++    return be64_to_cpu(v.value);
+ }
+ 
+ static inline be16_t native_be16(uint16_t v)
+ {
+-	be16_t rv;
+-	rv.value = cpu_to_be16(v);
+-	return rv;
++    be16_t rv;
++    rv.value = cpu_to_be16(v);
++
++    return rv;
+ }
+ 
+ static inline le32_t native_le32(uint32_t v)
+ {
+-	le32_t rv;
+-	rv.value = cpu_to_le32(v);
+-	return rv;
++    le32_t rv;
++    rv.value = cpu_to_le32(v);
++
++    return rv;
+ }
+ 
+ static inline be32_t native_be32(uint32_t v)
+ {
+-	be32_t rv;
+-	rv.value = cpu_to_be32(v);
+-	return rv;
++    be32_t rv;
++    rv.value = cpu_to_be32(v);
++
++    return rv;
+ }
+ 
+ static inline be64_t native_be64(uint64_t v)
+ {
+-	be64_t rv;
+-	rv.value = cpu_to_be64(v);
+-	return rv;
+-}
++    be64_t rv;
++    rv.value = cpu_to_be64(v);
+ 
++    return rv;
++}
+ #endif
+-- 
+1.9.1
+

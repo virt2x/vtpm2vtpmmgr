@@ -1,0 +1,71 @@
+From fd885d782cd4b89a16022559a2bcd6e9ea8cf9f7 Mon Sep 17 00:00:00 2001
+From: Quan Xu <quan.xu@intel.com>
+Date: Mon, 4 Jul 2016 09:43:10 +0800
+Subject: [PATCH 16/36] vtpmmgr: fix stubdom/vtpmmgr/log.c
+
+Signed-off-by: Quan Xu <quan.xu@intel.com>
+---
+ stubdom/vtpmmgr/log.c | 32 ++++++++++++++++++--------------
+ 1 file changed, 18 insertions(+), 14 deletions(-)
+
+diff --git a/stubdom/vtpmmgr/log.c b/stubdom/vtpmmgr/log.c
+index a82c913..b633d2d 100644
+--- a/stubdom/vtpmmgr/log.c
++++ b/stubdom/vtpmmgr/log.c
+@@ -40,14 +40,15 @@
+ 
+ #include "tcg.h"
+ 
+-char *module_names[] = { "",
+-                                "TPM",
+-                                "TPM",
+-                                "VTPM",
+-                                "VTPM",
+-                                "TXDATA",
+-                              };
+-// Helper code for the consts, eg. to produce messages for error codes.
++char *module_names[] = {
++    "",
++    "TPM",
++    "TPM",
++    "VTPM",
++    "VTPM",
++    "TXDATA",
++};
++/* Helper code for the consts, eg. to produce messages for error codes */
+ 
+ typedef struct error_code_entry_t {
+   TPM_RESULT code;
+@@ -101,7 +102,8 @@ static const error_code_entry_t error_msgs [] = {
+   { TPM_BAD_MIGRATION, "TPM_BAD_MIGRATION", "The migration properties of this key are incorrect." },
+   { TPM_BAD_SCHEME, "TPM_BAD_SCHEME", "The signature or encryption scheme for this key is incorrect or not permitted in this situation." },
+   { TPM_BAD_DATASIZE, "TPM_BAD_DATASIZE", "The size of the data (or blob) parameter is bad or inconsistent with the referenced key" },
+-  { TPM_BAD_MODE, "TPM_BAD_MODE", "A mode parameter is bad, such as capArea or subCapArea for TPM_GetCapability, phsicalPresence parameter for TPM_PhysicalPresence, or migrationType for TPM_CreateMigrationBlob." },
++  { TPM_BAD_MODE, "TPM_BAD_MODE", "A mode parameter is bad, such as capArea or subCapArea for TPM_GetCapability, \
++phsicalPresence parameter for TPM_PhysicalPresence, or migrationType for TPM_CreateMigrationBlob." },
+   { TPM_BAD_PRESENCE, "TPM_BAD_PRESENCE", "Either the physicalPresence or physicalPresenceLock bits have the wrong value" },
+   { TPM_BAD_VERSION, "TPM_BAD_VERSION", "The TPM cannot perform this version of the capability" },
+   { TPM_NO_WRAP_TRANSPORT, "TPM_NO_WRAP_TRANSPORT", "The TPM does not allow for wrapped transport sessions" },
+@@ -140,12 +142,14 @@ static const error_code_entry_t error_msgs [] = {
+ 
+ 
+ // helper function for the error codes:
+-const char* tpm_get_error_name (TPM_RESULT code) {
++const char* tpm_get_error_name (TPM_RESULT code)
++{
+   // just do a linear scan for now
+   unsigned i;
+-  for (i = 0; i < sizeof(error_msgs)/sizeof(error_msgs[0]); i++)
+-    if (code == error_msgs[i].code)
+-      return error_msgs[i].code_name;
+ 
+-    return("Unknown Error Code");
++  for ( i = 0; i < sizeof(error_msgs)/sizeof(error_msgs[0]); i++ )
++    if ( code == error_msgs[i].code )
++        return error_msgs[i].code_name;
++
++  return("Unknown Error Code");
+ }
+-- 
+1.9.1
+

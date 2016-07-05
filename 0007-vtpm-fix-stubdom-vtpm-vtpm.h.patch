@@ -1,0 +1,42 @@
+From 7d2ca63edcca1705cc246128f1ff6c30fe37779e Mon Sep 17 00:00:00 2001
+From: Quan Xu <quan.xu@intel.com>
+Date: Sat, 2 Jul 2016 12:44:15 +0800
+Subject: [PATCH 07/36] vtpm: fix stubdom/vtpm/vtpm.h
+
+Signed-off-by: Quan Xu <quan.xu@intel.com>
+---
+ stubdom/vtpm/vtpm.h | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
+
+diff --git a/stubdom/vtpm/vtpm.h b/stubdom/vtpm/vtpm.h
+index 5919e44..e1da8a6 100644
+--- a/stubdom/vtpm/vtpm.h
++++ b/stubdom/vtpm/vtpm.h
+@@ -21,15 +21,15 @@
+ 
+ /* Global commandline options */
+ struct Opt_args {
+-   enum StartUp {
+-      ST_CLEAR = 1,
+-      ST_SAVE = 2,
+-      ST_DEACTIVATED = 3
+-   } startup;
+-   unsigned long hwinitpcrs;
+-   int loglevel;
+-   uint32_t tpmconf;
+-   bool enable_maint_cmds;
++    enum StartUp {
++        ST_CLEAR = 1,
++        ST_SAVE = 2,
++        ST_DEACTIVATED = 3
++    } startup;
++    unsigned long hwinitpcrs;
++    int loglevel;
++    uint32_t tpmconf;
++    bool enable_maint_cmds;
+ };
+ extern struct Opt_args opt_args;
+ 
+-- 
+1.9.1
+

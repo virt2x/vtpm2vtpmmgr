@@ -1,0 +1,535 @@
+From fab2a25b9153f70cd4195924b27bc965144703b8 Mon Sep 17 00:00:00 2001
+From: Quan Xu <quan.xu@intel.com>
+Date: Tue, 5 Jul 2016 14:52:56 +0800
+Subject: [PATCH 31/36] vtpmmgr: fix stubdom/vtpmmgr/tpm2_marshal.h
+
+Signed-off-by: Quan Xu <quan.xu@intel.com>
+---
+ stubdom/vtpmmgr/tpm2_marshal.h | 113 +++++++++++++++++++++++++++++++----------
+ 1 file changed, 86 insertions(+), 27 deletions(-)
+
+diff --git a/stubdom/vtpmmgr/tpm2_marshal.h b/stubdom/vtpmmgr/tpm2_marshal.h
+index aaa4464..9cd5d86 100644
+--- a/stubdom/vtpmmgr/tpm2_marshal.h
++++ b/stubdom/vtpmmgr/tpm2_marshal.h
+@@ -55,8 +55,10 @@
+ inline BYTE* pack_BYTE_ARRAY(BYTE* ptr, const BYTE* array, UINT32 size)
+ {
+     int i;
+-    for (i = 0; i < size; i++)
++
++    for ( i = 0; i < size; i++ )
+          ptr = pack_BYTE(ptr, array[i]);
++
+     return ptr;
+ }
+ 
+@@ -129,6 +131,7 @@ inline BYTE* pack_TPM2B_DIGEST(BYTE* ptr, const TPM2B_DIGEST *digest)
+ {
+     ptr = pack_UINT16(ptr, digest->size);
+     ptr = pack_BUFFER(ptr, digest->buffer, digest->size);
++
+     return ptr;
+ }
+ 
+@@ -136,6 +139,7 @@ inline BYTE* unpack_TPM2B_DIGEST(BYTE* ptr, TPM2B_DIGEST *digest)
+ {
+     ptr = unpack_UINT16(ptr, &digest->size);
+     ptr = unpack_BUFFER(ptr, digest->buffer, digest->size);
++
+     return ptr;
+ }
+ 
+@@ -144,6 +148,7 @@ inline BYTE* pack_TPMT_TK_CREATION(BYTE* ptr,const TPMT_TK_CREATION *ticket )
+     ptr = pack_TPM_ST(ptr , &ticket->tag);
+     ptr = pack_TPMI_RH_HIERACHY(ptr , &ticket->hierarchy);
+     ptr = pack_TPM2B_DIGEST(ptr, &ticket->digest);
++
+     return ptr;
+ }
+ 
+@@ -152,6 +157,7 @@ inline BYTE* unpack_TPMT_TK_CREATION(BYTE* ptr, TPMT_TK_CREATION *ticket )
+     ptr = unpack_TPM_ST(ptr, &ticket->tag);
+     ptr = unpack_TPMI_RH_HIERACHY(ptr, &ticket->hierarchy);
+     ptr = unpack_TPM2B_DIGEST(ptr, &ticket->digest);
++
+     return ptr;
+ }
+ 
+@@ -159,6 +165,7 @@ inline BYTE* pack_TPM2B_NAME(BYTE* ptr,const TPM2B_NAME *name )
+ {
+     ptr = pack_UINT16(ptr, name->size);
+     ptr = pack_TPM_BUFFER(ptr, name->name, name->size);
++
+     return ptr;
+ }
+ 
+@@ -166,6 +173,7 @@ inline BYTE* unpack_TPM2B_NAME(BYTE* ptr, TPM2B_NAME *name)
+ {
+     ptr = unpack_UINT16(ptr, &name->size);
+     ptr = unpack_TPM_BUFFER(ptr, name->name, name->size);
++
+     return ptr;
+ }
+ 
+@@ -174,35 +182,40 @@ inline BYTE* pack_TPM2B_NONCE(BYTE* ptr, const TPM2B_NONCE *nonce)
+     return pack_TPM2B_DIGEST(ptr, (const TPM2B_DIGEST*)nonce);
+ }
+ 
+-#define unpack_TPM2B_NONCE(ptr, nonce)  unpack_TPM2B_DIGEST(ptr, (TPM2B_DIGEST*)nonce)
++#define unpack_TPM2B_NONCE(ptr, nonce)  \
++    unpack_TPM2B_DIGEST(ptr, (TPM2B_DIGEST*)nonce)
+ 
+ inline BYTE* pack_TPM2B_AUTH(BYTE* ptr, const TPM2B_AUTH *auth)
+ {
+     return pack_TPM2B_DIGEST(ptr, (const TPM2B_DIGEST*)auth);
+ }
+ 
+-#define unpack_TPM2B_AUTH(ptr, auth)    unpack_TPM2B_DIGEST(ptr, (TPM2B_DIGEST*)auth)
++#define unpack_TPM2B_AUTH(ptr, auth) \
++    unpack_TPM2B_DIGEST(ptr, (TPM2B_DIGEST*)auth)
+ 
+ inline BYTE* pack_TPM2B_DATA(BYTE* ptr, const TPM2B_DATA *data)
+ {
+     return pack_TPM2B_DIGEST(ptr, (const TPM2B_DIGEST*)data);
+ }
+ 
+-#define unpack_TPM2B_DATA(ptr, data)    unpack_TPM2B_DIGEST(ptr, (TPM2B_DIGEST*)data)
++#define unpack_TPM2B_DATA(ptr, data) \
++    unpack_TPM2B_DIGEST(ptr, (TPM2B_DIGEST*)data)
+ 
+ inline BYTE* pack_TPM2B_SENSITIVE_DATA(BYTE* ptr, const TPM2B_SENSITIVE_DATA *data)
+ {
+     return pack_TPM2B_DIGEST(ptr, (const TPM2B_DIGEST*)data);
+ }
+ 
+-#define unpack_TPM2B_SENSITIVE_DATA(ptr, data)  unpack_TPM2B_DIGEST(ptr, (TPM2B_DIGEST*)data)
++#define unpack_TPM2B_SENSITIVE_DATA(ptr, data)  \
++    unpack_TPM2B_DIGEST(ptr, (TPM2B_DIGEST*)data)
+ 
+ inline BYTE* pack_TPM2B_PUBLIC_KEY_RSA(BYTE* ptr, const TPM2B_PUBLIC_KEY_RSA *rsa)
+ {
+     return pack_TPM2B_DIGEST(ptr, (const TPM2B_DIGEST*)rsa);
+ }
+ 
+-#define unpack_TPM2B_PUBLIC_KEY_RSA(ptr, rsa)   unpack_TPM2B_DIGEST(ptr, (TPM2B_DIGEST*)rsa)
++#define unpack_TPM2B_PUBLIC_KEY_RSA(ptr, rsa)   \
++    unpack_TPM2B_DIGEST(ptr, (TPM2B_DIGEST*)rsa)
+ 
+ inline BYTE* pack_TPM2B_PRIVATE(BYTE* ptr, const TPM2B_PRIVATE *Private)
+ {
+@@ -218,25 +231,29 @@ inline BYTE* unpack_TPM2B_PRIVATE(BYTE* ptr, TPM2B_PRIVATE *Private)
+     return ptr;
+ }
+ 
+-inline BYTE* pack_TPMS_PCR_SELECTION_ARRAY(BYTE* ptr, const TPMS_PCR_SELECTION *sel, UINT32 count)
++inline BYTE* pack_TPMS_PCR_SELECTION_ARRAY(BYTE* ptr, const TPMS_PCR_SELECTION *sel,
++                                           UINT32 count)
+ {
+-    int i;
+-    for (i = 0; i < count; i++) {
++    for ( int i = 0; i < count; i++ )
++    {
+         ptr = pack_TPMI_ALG_HASH(ptr, &sel[i].hash);
+         ptr = pack_BYTE(ptr, sel[i].sizeofSelect);
+         ptr = pack_BUFFER(ptr, sel[i].pcrSelect, sel[i].sizeofSelect);
+     }
++
+     return ptr;
+ }
+ 
+-inline BYTE* unpack_TPMS_PCR_SELECTION_ARRAY(BYTE* ptr, TPMS_PCR_SELECTION *sel, UINT32 count)
++inline BYTE* unpack_TPMS_PCR_SELECTION_ARRAY(BYTE* ptr, TPMS_PCR_SELECTION *sel,
++                                             UINT32 count)
+ {
+-    int i;
+-    for (i = 0; i < count; i++) {
++    for ( int i = 0; i < count; i++ )
++    {
+         ptr = unpack_TPMI_ALG_HASH(ptr, &sel[i].hash);
+         ptr = unpack_BYTE(ptr, &sel[i].sizeofSelect);
+         ptr = unpack_BUFFER(ptr, sel[i].pcrSelect, sel[i].sizeofSelect);
+     }
++
+     return ptr;
+ }
+ 
+@@ -244,6 +261,7 @@ inline BYTE* pack_TPML_PCR_SELECTION(BYTE* ptr, const TPML_PCR_SELECTION *sel)
+ {
+     ptr = pack_UINT32(ptr, sel->count);
+     ptr = pack_TPMS_PCR_SELECTION_ARRAY(ptr, sel->pcrSelections, sel->count);
++
+     return ptr;
+ }
+ 
+@@ -251,17 +269,16 @@ inline BYTE* unpack_TPML_PCR_SELECTION(BYTE* ptr, TPML_PCR_SELECTION *sel)
+ {
+     ptr = unpack_UINT32(ptr, &sel->count);
+     ptr = unpack_TPMS_PCR_SELECTION_ARRAY(ptr, sel->pcrSelections, sel->count);
++
+     return ptr;
+ }
+ 
+ inline BYTE* unpack_TPML_DIGEST(BYTE* ptr,TPML_DIGEST *digest)
+ {
+-    int i;
+     ptr = unpack_UINT32(ptr, &digest->count);
+-    for (i=0;i<digest->count;i++)
+-    {
++    for ( int i = 0; i<digest->count; i++ )
+         ptr = unpack_TPM2B_DIGEST(ptr, &digest->digests[i]);
+-    }
++
+     return ptr;
+ }
+ 
+@@ -273,6 +290,7 @@ inline BYTE* pack_TPMS_CREATION_DATA(BYTE* ptr,const TPMS_CREATION_DATA *data)
+     ptr = pack_TPM_ALG_ID(ptr, &data->parentNameAlg);
+     ptr = pack_TPM2B_NAME(ptr, &data->parentQualifiedName);
+     ptr = pack_TPM2B_DATA(ptr, &data->outsideInfo);
++
+     return ptr;
+ }
+ 
+@@ -285,6 +303,7 @@ inline BYTE* unpack_TPMS_CREATION_DATA(BYTE* ptr, TPMS_CREATION_DATA *data)
+     ptr = unpack_TPM2B_NAME(ptr, &data->parentName);
+     ptr = unpack_TPM2B_NAME(ptr, &data->parentQualifiedName);
+     ptr = unpack_TPM2B_DATA(ptr, &data->outsideInfo);
++
+     return ptr;
+ }
+ 
+@@ -292,6 +311,7 @@ inline BYTE* pack_TPM2B_CREATION_DATA(BYTE* ptr, const TPM2B_CREATION_DATA *data
+ {
+     ptr = pack_UINT16(ptr, data->size);
+     ptr = pack_TPMS_CREATION_DATA(ptr, &data->creationData);
++
+     return ptr;
+ }
+ 
+@@ -299,6 +319,7 @@ inline BYTE* unpack_TPM2B_CREATION_DATA(BYTE* ptr, TPM2B_CREATION_DATA * data)
+ {
+     ptr = unpack_UINT16(ptr, &data->size);
+     ptr = unpack_TPMS_CREATION_DATA(ptr, &data->creationData);
++
+     return ptr;
+ }
+ 
+@@ -306,6 +327,7 @@ inline BYTE* pack_TPMS_SENSITIVE_CREATE(BYTE* ptr, const TPMS_SENSITIVE_CREATE *
+ {
+     ptr = pack_TPM2B_AUTH(ptr, &create->userAuth);
+     ptr = pack_TPM2B_SENSITIVE_DATA(ptr, &create->data);
++
+     return ptr;
+ }
+ 
+@@ -315,13 +337,15 @@ inline BYTE* pack_TPM2B_SENSITIVE_CREATE(BYTE* ptr, const TPM2B_SENSITIVE_CREATE
+     ptr += 2;
+     ptr = pack_TPMS_SENSITIVE_CREATE(ptr, &create->sensitive);
+     pack_UINT16(sizePtr, (UINT16)(ptr - sizePtr - 2));
++
+     return ptr;
+ }
+ 
+ inline BYTE* pack_TPMU_SYM_MODE(BYTE* ptr, const TPMU_SYM_MODE *p,
+                                 const TPMI_ALG_SYM_OBJECT *sel)
+ {
+-    switch(*sel) {
++    switch(*sel)
++    {
+     case TPM2_ALG_AES:
+         ptr = pack_TPMI_ALG_SYM_MODE(ptr, &p->aes);
+         break;
+@@ -334,12 +358,14 @@ inline BYTE* pack_TPMU_SYM_MODE(BYTE* ptr, const TPMU_SYM_MODE *p,
+     default:
+         ptr = pack_TPMI_ALG_SYM_MODE(ptr, &p->sym);
+     }
++
+     return ptr;
+ }
+ inline BYTE* unpack_TPMU_SYM_MODE(BYTE* ptr, TPMU_SYM_MODE *p,
+                                   const TPMI_ALG_SYM_OBJECT *sel)
+ {
+-    switch(*sel) {
++    switch(*sel)
++    {
+     case TPM2_ALG_AES:
+         ptr = unpack_TPMI_ALG_SYM_MODE(ptr, &p->aes);
+         break;
+@@ -352,13 +378,15 @@ inline BYTE* unpack_TPMU_SYM_MODE(BYTE* ptr, TPMU_SYM_MODE *p,
+     default:
+         ptr = unpack_TPMI_ALG_SYM_MODE(ptr, &p->sym);
+     }
++
+     return ptr;
+ }
+ 
+ inline BYTE* pack_TPMU_SYM_KEY_BITS(BYTE* ptr, const TPMU_SYM_KEY_BITS *p,
+                                     const TPMI_ALG_SYM_OBJECT *sel)
+ {
+-    switch(*sel) {
++    switch(*sel)
++    {
+     case TPM2_ALG_AES:
+         ptr = pack_TPMI_AES_KEY_BITS(ptr, &p->aes);
+         break;
+@@ -373,13 +401,15 @@ inline BYTE* pack_TPMU_SYM_KEY_BITS(BYTE* ptr, const TPMU_SYM_KEY_BITS *p,
+     default:
+         ptr = pack_TPM_KEY_BITS(ptr, &p->sym);
+     }
++
+     return ptr;
+ }
+ 
+ inline BYTE* unpack_TPMU_SYM_KEY_BITS(BYTE* ptr, TPMU_SYM_KEY_BITS *p,
+                                       const TPMI_ALG_SYM_OBJECT *sel)
+ {
+-    switch(*sel) {
++    switch(*sel)
++    {
+     case TPM2_ALG_AES:
+         ptr = unpack_TPMI_AES_KEY_BITS(ptr, &p->aes);
+         break;
+@@ -394,6 +424,7 @@ inline BYTE* unpack_TPMU_SYM_KEY_BITS(BYTE* ptr, TPMU_SYM_KEY_BITS *p,
+     default:
+         ptr = unpack_TPM_KEY_BITS(ptr, &p->sym);
+     }
++
+     return ptr;
+ }
+ 
+@@ -402,6 +433,7 @@ inline BYTE* pack_TPMT_SYM_DEF_OBJECT(BYTE* ptr, const TPMT_SYM_DEF_OBJECT *p)
+     ptr = pack_TPMI_ALG_SYM_OBJECT(ptr, &p->algorithm);
+     ptr = pack_TPMU_SYM_KEY_BITS(ptr, &p->keyBits, &p->algorithm);
+     ptr = pack_TPMU_SYM_MODE(ptr, &p->mode, &p->algorithm);
++
+     return ptr;
+ }
+ 
+@@ -410,6 +442,7 @@ inline BYTE* unpack_TPMT_SYM_DEF_OBJECT(BYTE *ptr, TPMT_SYM_DEF_OBJECT *p)
+     ptr = unpack_TPMI_ALG_SYM_OBJECT(ptr, &p->algorithm);
+     ptr = unpack_TPMU_SYM_KEY_BITS(ptr, &p->keyBits, &p->algorithm);
+     ptr = unpack_TPMU_SYM_MODE(ptr, &p->mode, &p->algorithm);
++
+     return ptr;
+ }
+ 
+@@ -419,7 +452,8 @@ inline BYTE* unpack_TPMT_SYM_DEF_OBJECT(BYTE *ptr, TPMT_SYM_DEF_OBJECT *p)
+ inline BYTE* pack_TPMU_ASYM_SCHEME(BYTE *ptr, const TPMU_ASYM_SCHEME *p,
+                                    const TPMI_ALG_RSA_SCHEME *s)
+ {
+-    switch(*s) {
++    switch(*s)
++    {
+ #ifdef TPM2_ALG_RSASSA
+     case TPM2_ALG_RSASSA:
+         assert(false || "TPM2_ALG_RSASSA");
+@@ -441,7 +475,8 @@ inline BYTE* pack_TPMU_ASYM_SCHEME(BYTE *ptr, const TPMU_ASYM_SCHEME *p,
+ inline BYTE* unpack_TPMU_ASYM_SCHEME(BYTE *ptr, TPMU_ASYM_SCHEME *p,
+                                      const TPMI_ALG_RSA_SCHEME *s)
+ {
+-    switch(*s) {
++    switch(*s)
++    {
+     #ifdef TPM2_ALG_RSASSA
+     case TPM2_ALG_RSASSA:
+         printf("not support TPM_ALG_RSASSA\n");
+@@ -459,6 +494,7 @@ inline BYTE* unpack_TPMU_ASYM_SCHEME(BYTE *ptr, TPMU_ASYM_SCHEME *p,
+         printf("default TPMI_ALG_RSA_SCHEME 0x%X\n", (UINT32)*s);
+         ptr = unpack_TPMI_ALG_HASH(ptr, &p->anySig.hashAlg);
+     }
++
+     return ptr;
+ }
+ 
+@@ -466,6 +502,7 @@ inline BYTE* pack_TPMT_RSA_SCHEME(BYTE* ptr, const TPMT_RSA_SCHEME *p)
+ {
+     ptr = pack_TPMI_ALG_RSA_SCHEME(ptr, &p->scheme);
+     ptr = pack_TPMU_ASYM_SCHEME(ptr, &p->details, &p->scheme);
++
+     return ptr;
+ }
+ 
+@@ -473,6 +510,7 @@ inline BYTE* unpack_TPMT_RSA_SCHEME(BYTE* ptr, TPMT_RSA_SCHEME *p)
+ {
+     ptr = unpack_TPMI_ALG_RSA_SCHEME(ptr, &p->scheme);
+     ptr = unpack_TPMU_ASYM_SCHEME(ptr, &p->details, &p->scheme);
++
+     return ptr;
+ }
+ 
+@@ -480,6 +518,7 @@ inline BYTE* pack_TPMT_RSA_DECRYPT(BYTE* ptr, const TPMT_RSA_DECRYPT *p)
+ {
+     ptr = pack_TPMI_ALG_RSA_SCHEME(ptr, &p->scheme);
+     ptr = pack_TPMU_ASYM_SCHEME(ptr, &p->details, &p->scheme);
++
+     return ptr;
+ }
+ 
+@@ -489,6 +528,7 @@ inline BYTE* pack_TPMS_RSA_PARMS(BYTE* ptr, const TPMS_RSA_PARMS *p)
+     ptr = pack_TPMT_RSA_SCHEME(ptr, &p->scheme);
+     ptr = pack_TPMI_RSA_KEY_BITS(ptr, &p->keyBits);
+     ptr = pack_UINT32(ptr, p->exponent);
++
+     return ptr;
+ }
+ 
+@@ -498,6 +538,7 @@ inline BYTE* unpack_TPMS_RSA_PARMS(BYTE *ptr, TPMS_RSA_PARMS *p)
+     ptr = unpack_TPMT_RSA_SCHEME(ptr, &p->scheme);
+     ptr = unpack_TPMI_RSA_KEY_BITS(ptr, &p->keyBits);
+     ptr = unpack_UINT32(ptr, &p->exponent);
++
+     return ptr;
+ }
+ 
+@@ -515,6 +556,7 @@ inline BYTE* pack_TPMU_PUBLIC_PARMS(BYTE* ptr, const TPMU_PUBLIC_PARMS *param,
+         assert(false);
+     }
+     assert(false);
++
+     return NULL;
+ }
+ 
+@@ -532,25 +574,29 @@ inline BYTE* unpack_TPMU_PUBLIC_PARMS(BYTE* ptr, TPMU_PUBLIC_PARMS *param,
+         assert(false);
+     }
+     assert(false);
++
+     return NULL;
+ }
+ 
+ inline BYTE* pack_TPMS_ECC_POINT(BYTE* ptr, const TPMS_ECC_POINT *point)
+ {
+     assert(false);
++
+     return ptr;
+ }
+ 
+ inline BYTE* unpack_TPMS_ECC_POINT(BYTE* ptr, TPMS_ECC_POINT *point)
+ {
+     assert(false);
++
+     return ptr;
+ }
+ 
+ inline BYTE* pack_TPMU_PUBLIC_ID(BYTE* ptr, const TPMU_PUBLIC_ID *id,
+                                  const TPMI_ALG_PUBLIC *selector)
+ {
+-    switch (*selector) {
++    switch(*selector)
++    {
+     case TPM2_ALG_KEYEDHASH:
+         return pack_TPM2B_DIGEST(ptr, &id->keyedHash);
+     case TPM2_ALG_SYMCIPHER:
+@@ -561,12 +607,15 @@ inline BYTE* pack_TPMU_PUBLIC_ID(BYTE* ptr, const TPMU_PUBLIC_ID *id,
+         return pack_TPMS_ECC_POINT(ptr, &id->ecc);
+     }
+     assert(false);
++
+     return NULL;
+ }
+ 
+-inline BYTE* unpack_TPMU_PUBLIC_ID(BYTE* ptr, TPMU_PUBLIC_ID *id, TPMI_ALG_PUBLIC *selector)
++inline BYTE* unpack_TPMU_PUBLIC_ID(BYTE* ptr, TPMU_PUBLIC_ID *id,
++                                   TPMI_ALG_PUBLIC *selector)
+ {
+-    switch (*selector) {
++    switch(*selector)
++    {
+     case TPM2_ALG_KEYEDHASH:
+         return unpack_TPM2B_DIGEST(ptr, &id->keyedHash);
+     case TPM2_ALG_SYMCIPHER:
+@@ -577,6 +626,7 @@ inline BYTE* unpack_TPMU_PUBLIC_ID(BYTE* ptr, TPMU_PUBLIC_ID *id, TPMI_ALG_PUBLI
+         return unpack_TPMS_ECC_POINT(ptr, &id->ecc);
+     }
+     assert(false);
++
+     return NULL;
+ }
+ 
+@@ -588,6 +638,7 @@ inline BYTE* pack_TPMT_PUBLIC(BYTE* ptr, const TPMT_PUBLIC *public)
+     ptr = pack_TPM2B_DIGEST(ptr, &public->authPolicy);
+     ptr = pack_TPMU_PUBLIC_PARMS(ptr, &public->parameters, &public->type);
+     ptr = pack_TPMU_PUBLIC_ID(ptr, &public->unique, &public->type);
++
+     return ptr;
+ }
+ 
+@@ -599,6 +650,7 @@ inline BYTE* unpack_TPMT_PUBLIC(BYTE* ptr, TPMT_PUBLIC *public)
+     ptr = unpack_TPM2B_DIGEST(ptr, &public->authPolicy);
+     ptr = unpack_TPMU_PUBLIC_PARMS(ptr, &public->parameters, &public->type);
+     ptr = unpack_TPMU_PUBLIC_ID(ptr, &public->unique, &public->type);
++
+     return ptr;
+ }
+ 
+@@ -608,6 +660,7 @@ inline BYTE* pack_TPM2B_PUBLIC(BYTE* ptr, const TPM2B_PUBLIC *public)
+     ptr += 2;
+     ptr = pack_TPMT_PUBLIC(ptr, &public->publicArea);
+     pack_UINT16(sizePtr, (UINT16)(ptr - sizePtr - 2));
++
+     return ptr;
+ }
+ 
+@@ -615,6 +668,7 @@ inline BYTE* unpack_TPM2B_PUBLIC(BYTE* ptr, TPM2B_PUBLIC *public)
+ {
+     ptr = unpack_UINT16(ptr, &public->size);
+     ptr = unpack_TPMT_PUBLIC(ptr, &public->publicArea);
++
+     return ptr;
+ }
+ 
+@@ -623,15 +677,16 @@ inline BYTE* pack_TPMS_PCR_SELECTION(BYTE* ptr, const TPMS_PCR_SELECTION *select
+     ptr = pack_TPMI_ALG_HASH(ptr, &selection->hash);
+     ptr = pack_BYTE(ptr, selection->sizeofSelect);
+     ptr = pack_BYTE_ARRAY(ptr, selection->pcrSelect, selection->sizeofSelect);
++
+     return ptr;
+ }
+ 
+ inline BYTE* pack_TPMS_PCR_SELECTION_Array(BYTE* ptr, const TPMS_PCR_SELECTION *selections,
+                                            const UINT32 cnt)
+ {
+-    int i;
+-    for (i = 0; i < cnt; i++)
++    for ( int i = 0; i < cnt; i++ )
+         ptr = pack_TPMS_PCR_SELECTION(ptr, selections + i);
++
+     return ptr;
+ }
+ 
+@@ -644,6 +699,7 @@ inline BYTE* pack_TPM_AuthArea(BYTE* ptr, const TPM_AuthArea *auth)
+     ptr = pack_TPMA_SESSION(ptr, &auth->sessionAttributes);
+     ptr = pack_TPM2B_AUTH(ptr, &auth->auth);
+     pack_UINT32(sizePtr, ptr - sizePtr - sizeof(UINT32));
++
+     return ptr;
+ }
+ 
+@@ -654,6 +710,7 @@ inline BYTE* unpack_TPM_AuthArea(BYTE* ptr, TPM_AuthArea *auth)
+     ptr = unpack_TPM2B_NONCE(ptr, &auth->nonce);
+     ptr = unpack_TPMA_SESSION(ptr, &auth->sessionAttributes);
+     ptr = unpack_TPM2B_AUTH(ptr, &auth->auth);
++
+     return ptr;
+ }
+ 
+@@ -661,6 +718,7 @@ inline BYTE* pack_TPM2_RSA_KEY(BYTE* ptr, const TPM2_RSA_KEY *key)
+ {
+     ptr = pack_TPM2B_PRIVATE(ptr, &key->Private);
+     ptr = pack_TPM2B_PUBLIC(ptr, &key->Public);
++
+     return ptr;
+ }
+ 
+@@ -668,6 +726,7 @@ inline BYTE* unpack_TPM2_RSA_KEY(BYTE* ptr, TPM2_RSA_KEY *key)
+ {
+     ptr = unpack_TPM2B_PRIVATE(ptr, &key->Private);
+     ptr = unpack_TPM2B_PUBLIC(ptr, &key->Public);
++
+     return ptr;
+ }
+ #endif
+-- 
+1.9.1
+

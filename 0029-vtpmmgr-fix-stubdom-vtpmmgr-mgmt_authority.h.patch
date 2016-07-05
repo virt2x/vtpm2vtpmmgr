@@ -1,0 +1,31 @@
+From 18730e3b604771ead24bedacce47c0e08fc3db6b Mon Sep 17 00:00:00 2001
+From: Quan Xu <quan.xu@intel.com>
+Date: Tue, 5 Jul 2016 10:48:00 +0800
+Subject: [PATCH 29/36] vtpmmgr: fix stubdom/vtpmmgr/mgmt_authority.h
+
+Signed-off-by: Quan Xu <quan.xu@intel.com>
+---
+ stubdom/vtpmmgr/mgmt_authority.h | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/stubdom/vtpmmgr/mgmt_authority.h b/stubdom/vtpmmgr/mgmt_authority.h
+index cdd06aa..f04eca9 100644
+--- a/stubdom/vtpmmgr/mgmt_authority.h
++++ b/stubdom/vtpmmgr/mgmt_authority.h
+@@ -3,9 +3,9 @@
+ 
+ struct mem_group *vtpm_new_group(const struct tpm_authdata *privCADigest);
+ int group_do_activate(struct mem_group *group, void* blob, int blobSize,
+-	void* resp, unsigned int *rlen);
++                      void* resp, unsigned int *rlen);
+ int vtpm_do_quote(struct mem_group *group, const uuid_t uuid,
+-	const uint8_t* kern_hash, const struct tpm_authdata *data, TPM_PCR_SELECTION *sel, uint32_t extraInfoFlags,
+-	void* pcr_out, uint32_t *pcr_size, void* sig_out);
+-
++                  const uint8_t* kern_hash, const struct tpm_authdata *data,
++                  TPM_PCR_SELECTION *sel, uint32_t extraInfoFlags,
++                  void* pcr_out, uint32_t *pcr_size, void* sig_out);
+ #endif
+-- 
+1.9.1
+

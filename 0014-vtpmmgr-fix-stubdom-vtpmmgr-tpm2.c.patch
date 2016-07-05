@@ -1,0 +1,279 @@
+From 6db8d51f90ea671e430a231bb83a6b5468cfc6b1 Mon Sep 17 00:00:00 2001
+From: Quan Xu <quan.xu@intel.com>
+Date: Sun, 3 Jul 2016 16:51:26 +0800
+Subject: [PATCH 14/36] vtpmmgr: fix stubdom/vtpmmgr/tpm2.c
+
+Signed-off-by: Quan Xu <quan.xu@intel.com>
+---
+ stubdom/vtpmmgr/tpm2.c | 99 ++++++++++++++++++++++++++++----------------------
+ 1 file changed, 56 insertions(+), 43 deletions(-)
+
+diff --git a/stubdom/vtpmmgr/tpm2.c b/stubdom/vtpmmgr/tpm2.c
+index c9f1016..1f5925f 100644
+--- a/stubdom/vtpmmgr/tpm2.c
++++ b/stubdom/vtpmmgr/tpm2.c
+@@ -94,7 +94,9 @@
+     /* Pack the command size */\
+     paramSize = ptr - in_buf;\
+     pack_UINT32(in_buf + sizeof(TPM_TAG), paramSize);\
+-    if ((status = TPM_TransmitData(in_buf, paramSize, out_buf, &out_len)) != TPM_SUCCESS) {\
++    if ( (status = TPM_TransmitData(in_buf, paramSize, out_buf, &out_len)) \
++         != TPM_SUCCESS ) \
++    {\
+         goto abort_egress;\
+     }\
+ } while(0)
+@@ -109,14 +111,14 @@
+ #define TPM_AUTH1_VERIFY(HMACkey, auth) do {\
+     sha1_finish(&sha1_ctx, paramDigest.digest);\
+     ptr = unpack_TPM_AUTH_SESSION(ptr, auth);\
+-    if ((status = verifyAuth(&paramDigest, HMACkey, auth)) != TPM_SUCCESS) {\
++    if ( (status = verifyAuth(&paramDigest, HMACkey, auth)) != TPM_SUCCESS ) {\
+         goto abort_egress;\
+     }\
+ } while(0)
+ 
+ #define TPM_AUTH2_VERIFY(HMACkey, auth) do {\
+     ptr = unpack_TPM_AUTH_SESSION(ptr, auth);\
+-    if ((status = verifyAuth(&paramDigest, HMACkey, auth)) != TPM_SUCCESS) {\
++    if ( (status = verifyAuth(&paramDigest, HMACkey, auth)) != TPM_SUCCESS ) {\
+         goto abort_egress;\
+     }\
+ } while(0)
+@@ -125,8 +127,10 @@
+     ptr = out_buf;\
+     ptr = unpack_TPM_RSP_HEADER(ptr, \
+           &(tag), &(paramSize), &(status));\
+-    if ((status) != TPM_SUCCESS){ \
+-        vtpmlogerror(VTPM_LOG_TPM, "Failed with return code %s\n", tpm_get_error_name(status));\
++    if ((status) != TPM_SUCCESS) \
++    { \
++        vtpmlogerror(VTPM_LOG_TPM, "Failed with return code %s\n", \
++                     tpm_get_error_name(status));\
+         goto abort_egress;\
+     }\
+ } while(0)
+@@ -147,7 +151,7 @@ TPM_RC TPM2_PCR_Read(TPML_PCR_SELECTION pcrSelectionIn,
+ {
+     TPM_BEGIN(TPM_ST_NO_SESSIONS,TPM_CC_PCR_Read);
+ 
+-    /*pack in*/
++    /* pack in */
+     ptr =  pack_TPML_PCR_SELECTION(ptr, &pcrSelectionIn);
+ 
+     TPM_TRANSMIT();
+@@ -165,9 +169,9 @@ egress:
+ }
+ 
+ TPM_RC TPM2_Load(TPMI_DH_OBJECT parentHandle,
+-                 TPM2B_PRIVATE *inPrivate, /* in */
+-                 TPM2B_PUBLIC *inPublic, /* in */
+-                 TPM2_HANDLE *objectHandle, /* out */
++                 TPM2B_PRIVATE *inPrivate  /* in */,
++                 TPM2B_PUBLIC *inPublic /* in */,
++                 TPM2_HANDLE *objectHandle /* out */,
+                  TPM2B_NAME *name /* out */)
+ {
+     TPM_BEGIN(TPM_ST_SESSIONS, TPM_CC_Load);
+@@ -182,9 +186,10 @@ TPM_RC TPM2_Load(TPMI_DH_OBJECT parentHandle,
+     TPM_TRANSMIT();
+     TPM_UNPACK_VERIFY();
+ 
+-    if (objectHandle != NULL) {
++    if ( objectHandle != NULL )
+         ptr = unpack_TPM_HANDLE(ptr, objectHandle);
+-    } else {
++    else
++    {
+         TPM2_HANDLE tmp;
+         ptr = unpack_TPM_HANDLE(ptr, &tmp);
+     }
+@@ -193,8 +198,8 @@ TPM_RC TPM2_Load(TPMI_DH_OBJECT parentHandle,
+         ptr = unpack_TPM2B_NAME(ptr, name);
+     goto egress;
+ 
+-abort_egress:
+-egress:
++ abort_egress:
++ egress:
+     return status;
+ }
+ 
+@@ -230,19 +235,22 @@ TPM_RC TPM2_Create(TPMI_DH_OBJECT parentHandle,
+     TPM_UNPACK_VERIFY();
+ 
+     ptr = unpack_UINT32(ptr, &param_size);
+-    if (out != NULL) {
++    if ( out != NULL )
++    {
+         ptr = unpack_TPM2B_PRIVATE(ptr, &vtpm_globals.tpm2_storage_key.Private);
+         ptr = unpack_TPM2B_PUBLIC(ptr, &vtpm_globals.tpm2_storage_key.Public);
+         ptr = unpack_TPM2B_CREATION_DATA(ptr, &out->creationData);
+         ptr = unpack_TPM2B_DIGEST(ptr, &out->creationHash);
+         ptr = unpack_TPMT_TK_CREATION(ptr, &out->creationTicket);
+-    } else {
+-           ptr += param_size;
+     }
++    else
++        ptr += param_size;
++
+     goto egress;
+ 
+-abort_egress:
+-egress:
++ abort_egress:
++ egress:
++
+     return status;
+ }
+ 
+@@ -280,29 +288,33 @@ TPM_RC TPM2_CreatePrimary(TPMI_RH_HIERARCHY primaryHandle,
+ 
+     if (objHandle != NULL)
+         ptr = unpack_TPM_HANDLE(ptr, objHandle);
+-    else {
++    else
++    {
+         TPM2_HANDLE handle;
+         ptr = unpack_TPM_HANDLE(ptr, &handle);
+     }
+     ptr = unpack_UINT32(ptr, &param_size);
+ 
+-    if (out != NULL) {
++    if (out != NULL)
++    {
+         ptr = unpack_TPM2B_PUBLIC(ptr, &out->outPublic);
+         ptr = unpack_TPM2B_CREATION_DATA(ptr, &out->creationData);
+         ptr = unpack_TPM2B_DIGEST(ptr, &out->creationHash);
+         ptr = unpack_TPMT_TK_CREATION(ptr, &out->creationTicket);
+-    } else {
+-        ptr += param_size;
+     }
++    else
++        ptr += param_size;
+ 
+ goto egress;
+ 
+-abort_egress:
+-egress:
++ abort_egress:
++ egress:
++
+    return status;
+ }
+ 
+-TPM_RC TPM2_HierachyChangeAuth(TPM2I_RH_HIERARCHY_AUTH authHandle, TPM2B_AUTH *newAuth)
++TPM_RC TPM2_HierachyChangeAuth(TPM2I_RH_HIERARCHY_AUTH authHandle,
++                               TPM2B_AUTH *newAuth)
+ {
+     TPM_BEGIN(TPM_ST_SESSIONS, TPM_CC_HierarchyChangeAuth);
+     ptr = pack_UINT32(ptr, authHandle);
+@@ -311,7 +323,8 @@ TPM_RC TPM2_HierachyChangeAuth(TPM2I_RH_HIERARCHY_AUTH authHandle, TPM2B_AUTH *n
+     TPM_TRANSMIT();
+     TPM_UNPACK_VERIFY();
+ 
+-abort_egress:
++ abort_egress:
++
+     return status;
+ }
+ 
+@@ -331,9 +344,10 @@ TPM_RC TPM2_RSA_ENCRYPT(TPMI_DH_OBJECT keyHandle,
+     TPM_TRANSMIT();
+     TPM_UNPACK_VERIFY();
+ 
+-    if (outData != NULL)
++    if ( outData != NULL )
+         unpack_TPM2B_PUBLIC_KEY_RSA(ptr, outData);
+-abort_egress:
++ abort_egress:
++
+     return status;
+ }
+ 
+@@ -355,7 +369,8 @@ TPM_RC TPM2_Bind(TPMI_DH_OBJECT keyHandle,
+     TPMTRYRETURN(TPM2_RSA_ENCRYPT(keyHandle, &message, &inScheme, &label, &outData));
+     memcpy(out, outData.buffer, outData.size);
+ 
+-abort_egress:
++ abort_egress:
++
+     return status;
+ }
+ 
+@@ -379,10 +394,11 @@ TPM_RC TPM2_RSA_Decrypt(TPMI_DH_OBJECT keyHandle,
+ 
+     ptr = unpack_UINT32(ptr, &param_size);
+ 
+-    if (message)
++    if ( message )
+         ptr = unpack_TPM2B_PUBLIC_KEY_RSA(ptr, message);
+ 
+-abort_egress:
++ abort_egress:
++
+     return status;
+ }
+ 
+@@ -401,13 +417,12 @@ TPM_RC TPM2_UnBind(TPMI_DH_OBJECT keyHandle,
+     memcpy(cipher.buffer, in, ilen);
+     inScheme.scheme = TPM2_ALG_NULL;
+     label.size = 0;
+-
+-    TPMTRYRETURN(TPM2_RSA_Decrypt(keyHandle, &cipher, &inScheme, &label, &message));
+-
++    TPMTRYRETURN(TPM2_RSA_Decrypt(keyHandle, &cipher, &inScheme,
++                                  &label, &message));
+     *olen = message.size;
+     memcpy(out, message.buffer, *olen);
+ 
+-abort_egress:
++ abort_egress:
+     return status;
+ }
+ 
+@@ -421,35 +436,33 @@ TPM_RC TPM2_CLEAR(void)
+     TPM_TRANSMIT();
+     TPM_UNPACK_VERIFY();
+ 
+-abort_egress:
++ abort_egress:
++
+     return status;
+ }
+ 
+ TPM_RC TPM2_GetRandom(UINT32 * bytesRequested, BYTE * randomBytes)
+ {
+     TPM_BEGIN(TPM_ST_NO_SESSIONS, TPM_CC_GetRandom);
+-
+     ptr = pack_UINT16(ptr, (UINT16)*bytesRequested);
+-
+     TPM_TRANSMIT();
+     TPM_UNPACK_VERIFY();
+-
+     ptr = unpack_UINT16(ptr, (UINT16 *)bytesRequested);
+     ptr = unpack_TPM_BUFFER(ptr, randomBytes, *bytesRequested);
+ 
+-abort_egress:
++ abort_egress:
++
+     return status;
+ }
+ 
+ TPM_RC TPM2_FlushContext(TPMI_DH_CONTEXT flushHandle)
+ {
+     TPM_BEGIN(TPM_ST_NO_SESSIONS, TPM_CC_FlushContext);
+-
+     ptr = pack_UINT32(ptr, flushHandle);
+-
+     TPM_TRANSMIT();
+     TPM_UNPACK_VERIFY();
+ 
+-abort_egress:
++ abort_egress:
++
+     return status;
+ }
+-- 
+1.9.1
+

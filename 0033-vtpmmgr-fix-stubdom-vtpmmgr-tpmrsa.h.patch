@@ -1,0 +1,77 @@
+From aa8d7cd280296638861ebc427b679a2a730175bd Mon Sep 17 00:00:00 2001
+From: Quan Xu <quan.xu@intel.com>
+Date: Tue, 5 Jul 2016 15:55:12 +0800
+Subject: [PATCH 33/36] vtpmmgr: fix stubdom/vtpmmgr/tpmrsa.h
+
+Signed-off-by: Quan Xu <quan.xu@intel.com>
+---
+ stubdom/vtpmmgr/tpmrsa.h | 42 +++++++++++++++++++++---------------------
+ 1 file changed, 21 insertions(+), 21 deletions(-)
+
+diff --git a/stubdom/vtpmmgr/tpmrsa.h b/stubdom/vtpmmgr/tpmrsa.h
+index 08213bb..9205179 100644
+--- a/stubdom/vtpmmgr/tpmrsa.h
++++ b/stubdom/vtpmmgr/tpmrsa.h
+@@ -32,38 +32,38 @@
+ /* tpm software key */
+ typedef struct
+ {
+-    size_t len;                 /*!<  size(N) in chars  */
+-
+-    mpi N;                      /*!<  public modulus    */
+-    mpi E;                      /*!<  public exponent   */
+-
+-    mpi RN;                     /*!<  cached R^2 mod N  */
++    size_t len; /*!<  size(N) in chars  */
++    mpi N;      /*!<  public modulus    */
++    mpi E;      /*!<  public exponent   */
++    mpi RN;     /*!<  cached R^2 mod N  */
+ }
+ tpmrsa_context;
+ 
+-#define TPMRSA_CTX_INIT { 0, {0, 0, NULL}, {0, 0, NULL}, {0, 0, NULL}}
++#define TPMRSA_CTX_INIT \
++    { 0, {0, 0, NULL}, {0, 0, NULL}, {0, 0, NULL}}
+ 
+ /* Setup the rsa context using tpm public key data */
+ void tpmrsa_set_pubkey(tpmrsa_context* ctx,
+-      const unsigned char* key,
+-      int keylen,
+-      const unsigned char* exponent,
+-      int explen);
++                       const unsigned char* key,
++                       int keylen,
++                       const unsigned char* exponent,
++                       int explen);
+ 
+ /* Check an RSA signature */
+-TPM_RESULT tpmrsa_sigcheck(tpmrsa_context *ctx, const unsigned char *input, const unsigned char *sha1);
++TPM_RESULT tpmrsa_sigcheck(tpmrsa_context *ctx, const unsigned char *input,
++                           const unsigned char *sha1);
+ 
+ /* Do rsa public crypto */
+-TPM_RESULT tpmrsa_pub_encrypt_oaep( tpmrsa_context *ctx,
+-      int (*f_rng)(void *, unsigned char *, size_t),
+-      void *p_rng,
+-      size_t ilen,
+-      const unsigned char *input,
+-      unsigned char *output );
++TPM_RESULT tpmrsa_pub_encrypt_oaep(tpmrsa_context *ctx,
++                                   int (*f_rng)(void *, unsigned char *, size_t),
++                                   void *p_rng,
++                                   size_t ilen,
++                                   const unsigned char *input,
++                                   unsigned char *output);
+ 
+ /* free tpmrsa key */
+-inline void tpmrsa_free( tpmrsa_context *ctx ) {
+-   mpi_free( &ctx->RN ); mpi_free( &ctx->E  ); mpi_free( &ctx->N  );
++inline void tpmrsa_free(tpmrsa_context *ctx)
++{
++    mpi_free(&ctx->RN ); mpi_free( &ctx->E  ); mpi_free( &ctx->N);
+ }
+-
+ #endif /* tpmrsa.h */
+-- 
+1.9.1
+

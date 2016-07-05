@@ -1,0 +1,78 @@
+From 91849e54c8353be336fe328d23134259f01d0449 Mon Sep 17 00:00:00 2001
+From: Quan Xu <quan.xu@intel.com>
+Date: Sat, 2 Jul 2016 11:42:41 +0800
+Subject: [PATCH 04/36] vtpm: fix stubdom/vtpm/vtpm_pcrs.c
+
+Signed-off-by: Quan Xu <quan.xu@intel.com>
+---
+ stubdom/vtpm/vtpm_pcrs.c | 53 +++++++++++++++++++++++++++---------------------
+ 1 file changed, 30 insertions(+), 23 deletions(-)
+
+diff --git a/stubdom/vtpm/vtpm_pcrs.c b/stubdom/vtpm/vtpm_pcrs.c
+index 22a6cef..e29db94 100644
+--- a/stubdom/vtpm/vtpm_pcrs.c
++++ b/stubdom/vtpm/vtpm_pcrs.c
+@@ -14,30 +14,37 @@
+ #include "vtpm_cmd.h"
+ #include "tpm/tpm_data.h"
+ 
+-#define PCR_VALUE      tpmData.permanent.data.pcrValue
+-
+-static int write_pcr_direct(unsigned int pcrIndex, uint8_t* val) {
+-   if(pcrIndex > TPM_NUM_PCR) {
+-      return TPM_BADINDEX;
+-   }
+-   memcpy(&PCR_VALUE[pcrIndex], val, sizeof(TPM_PCRVALUE));
+-   return TPM_SUCCESS;
++#define PCR_VALUE  tpmData.permanent.data.pcrValue
++
++static int write_pcr_direct(unsigned int pcrIndex, uint8_t* val)
++{
++    if ( pcrIndex > TPM_NUM_PCR )
++        return TPM_BADINDEX;
++
++    memcpy(&PCR_VALUE[pcrIndex], val, sizeof(TPM_PCRVALUE));
++
++    return TPM_SUCCESS;
+ }
+ 
+-TPM_RESULT vtpm_initialize_hw_pcrs(struct tpmfront_dev* tpmfront_dev, unsigned long pcrs)
++TPM_RESULT vtpm_initialize_hw_pcrs(struct tpmfront_dev* tpmfront_dev,
++                                   unsigned long pcrs)
+ {
+-   TPM_RESULT rc = TPM_SUCCESS;
+-   uint8_t digest[sizeof(TPM_PCRVALUE)];
+-
+-   for(unsigned int i = 0; i < TPM_NUM_PCR; ++i) {
+-      if(pcrs & 1 << i) {
+-         if((rc = VTPM_PCRRead(tpmfront_dev, i, digest)) != TPM_SUCCESS) {
+-            error("TPM_PCRRead failed with error : %d", rc);
+-            return rc;
+-         }
+-         write_pcr_direct(i, digest);
+-      }
+-   }
+-
+-   return rc;
++    TPM_RESULT rc = TPM_SUCCESS;
++    uint8_t digest[sizeof(TPM_PCRVALUE)];
++
++    for ( unsigned int i = 0; i < TPM_NUM_PCR; ++i )
++    {
++        if ( pcrs & 1 << i )
++        {
++            rc = VTPM_PCRRead(tpmfront_dev, i, digest);
++            if ( rc != TPM_SUCCESS )
++            {
++                error("TPM_PCRRead failed with error : %d", rc);
++                return rc;
++            }
++            write_pcr_direct(i, digest);
++        }
++    }
++
++    return rc;
+ }
+-- 
+1.9.1
+

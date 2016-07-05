@@ -1,0 +1,135 @@
+From 18d6b2a1fd5bca3a2606cf960c5927ce1ef3b119 Mon Sep 17 00:00:00 2001
+From: Quan Xu <quan.xu@intel.com>
+Date: Sat, 2 Jul 2016 16:09:25 +0800
+Subject: [PATCH 09/36] vtpmmgr: fix stubdom/vtpmmgr/vtpmmgr.c
+
+Signed-off-by: Quan Xu <quan.xu@intel.com>
+---
+ stubdom/vtpmmgr/vtpmmgr.c | 76 +++++++++++++++++++++++++++--------------------
+ 1 file changed, 43 insertions(+), 33 deletions(-)
+
+diff --git a/stubdom/vtpmmgr/vtpmmgr.c b/stubdom/vtpmmgr/vtpmmgr.c
+index 9fddaa2..6e54a81 100644
+--- a/stubdom/vtpmmgr/vtpmmgr.c
++++ b/stubdom/vtpmmgr/vtpmmgr.c
+@@ -53,12 +53,15 @@ int parse_cmdline_hw(int argc, char** argv)
+ {
+     int i;
+ 
+-    for (i = 1; i < argc; ++i) {
+-        if (!strcmp(argv[i], TPM2_EXTRA_OPT)) {
++    for ( i = 1; i < argc; ++i )
++    {
++        if ( !strcmp(argv[i], TPM2_EXTRA_OPT) )
++        {
+             hardware_version.hw_version = TPM2_HARDWARE;
+             break;
+         }
+     }
++
+     return 0;
+ }
+ 
+@@ -67,61 +70,68 @@ int hw_is_tpm2(void)
+     return (hardware_version.hw_version == TPM2_HARDWARE) ? 1 : 0;
+ }
+ 
+-void main_loop(void) {
+-   tpmcmd_t* tpmcmd;
+-   uint8_t respbuf[TCPA_MAX_BUFFER_LENGTH];
+-
+-   while(1) {
+-      /* Wait for requests from a vtpm */
+-      vtpmloginfo(VTPM_LOG_VTPM, "Waiting for commands from vTPM's:\n");
+-      if((tpmcmd = tpmback_req_any()) == NULL) {
+-         vtpmlogerror(VTPM_LOG_VTPM, "NULL tpmcmd\n");
+-         continue;
+-      }
++void main_loop(void)
++{
++    tpmcmd_t* tpmcmd;
++    uint8_t respbuf[TCPA_MAX_BUFFER_LENGTH];
++
++    while(1)
++    {
++        /* Wait for requests from a vtpm */
++        vtpmloginfo(VTPM_LOG_VTPM, "Waiting for commands from vTPM's:\n");
++        tpmcmd = tpmback_req_any();
++        if ( tpmcmd == NULL )
++        {
++            vtpmlogerror(VTPM_LOG_VTPM, "NULL tpmcmd\n");
++            continue;
++        }
+ 
+-      tpmcmd->resp = respbuf;
++        tpmcmd->resp = respbuf;
+ 
+-      /* Process the command */
+-      vtpmmgr_handle_cmd(tpmcmd->opaque, tpmcmd);
++        /* Process the command */
++        vtpmmgr_handle_cmd(tpmcmd->opaque, tpmcmd);
+ 
+-      /* Send response */
+-      tpmback_resp(tpmcmd);
+-   }
++        /* Send response */
++        tpmback_resp(tpmcmd);
++    }
+ }
+ 
+ int main(int argc, char** argv)
+ {
+-   int rc = 0;
+-   sleep(2);
+-   vtpmloginfo(VTPM_LOG_VTPM, "Starting vTPM manager domain\n");
++    int rc = 0;
++
++    sleep(2);
++    vtpmloginfo(VTPM_LOG_VTPM, "Starting vTPM manager domain\n");
+ 
+     /*Parse TPM hardware in extra command line*/
+     parse_cmdline_hw(argc, argv);
+ 
+     /* Initialize the vtpm manager */
+-    if (hw_is_tpm2()) {
++    if ( hw_is_tpm2() )
++    {
+         vtpmloginfo(VTPM_LOG_VTPM, "Hardware : --- TPM 2.0 ---\n");
+-        if (vtpmmgr2_init(argc, argv) != TPM_SUCCESS) {
++        if ( vtpmmgr2_init(argc, argv) != TPM_SUCCESS )
++        {
+             vtpmlogerror(VTPM_LOG_VTPM, "Unable to initialize vtpmmgr domain!\n");
+             rc = -1;
+             goto exit;
+         }
+-    }else{
++    }
++    else
++    {
+         vtpmloginfo(VTPM_LOG_VTPM, "Hardware : --- TPM 1.x ---\n");
+-        if (vtpmmgr_init(argc, argv) != TPM_SUCCESS) {
++        if ( vtpmmgr_init(argc, argv) != TPM_SUCCESS )
++        {
+             vtpmlogerror(VTPM_LOG_VTPM, "Unable to initialize vtpmmgr domain!\n");
+             rc = -1;
+             goto exit;
+         }
+     }
+ 
+-   main_loop();
+-
+-   vtpmloginfo(VTPM_LOG_VTPM, "vTPM Manager shutting down...\n");
+-
+-   vtpmmgr_shutdown();
++    main_loop();
++    vtpmloginfo(VTPM_LOG_VTPM, "vTPM Manager shutting down...\n");
++    vtpmmgr_shutdown();
+ 
+ exit:
+-   return rc;
+-
++    return rc;
+ }
+-- 
+1.9.1
+
